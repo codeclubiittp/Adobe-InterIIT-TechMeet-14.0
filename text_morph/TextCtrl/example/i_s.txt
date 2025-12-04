@@ -1,2 +1,1 @@
-1.png BRD
-2.png PTT
+1.png NotebookLM

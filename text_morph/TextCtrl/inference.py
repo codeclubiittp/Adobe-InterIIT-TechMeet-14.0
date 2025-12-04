@@ -85,13 +85,15 @@ def main(opt):
         style_text = style_dict[image_name]
         target_text = target_dict[image_name]
         w,h = Image.open(image_path).size
-        source_image = load_image(image_path)
-        style_image = load_image(image_path)
-        result = text_editing(pipeline, source_image, style_image, style_text, target_text,
-                                    starting_layer=starting_layer,
-                                    ddim_steps=num_inference_steps,
-                                    scale=guidance_scale,
-        )
+        with torch.profiler.record_function("Textctrl_Loading"):
+            source_image = load_image(image_path)
+            style_image = load_image(image_path)
+        with torch.profiler.record_function("Textctrl_Inference"):
+            result = text_editing(pipeline, source_image, style_image, style_text, target_text,
+                                        starting_layer=starting_layer,
+                                        ddim_steps=num_inference_steps,
+                                        scale=guidance_scale,
+            )
         if opt.benchmark:
             _, GaMuSA_image = result[:]
             GaMuSA_image = Image.fromarray((GaMuSA_image * 255).astype(np.uint8)).resize((w, h))

@@ -13,7 +13,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEXTCTRL_PATH = os.path.join(os.path.dirname(SCRIPT_DIR), 'TextCtrl')
 if TEXTCTRL_PATH not in sys.path:
     sys.path.insert(0, TEXTCTRL_PATH)
-from main import process_single_image
+from main import process_single_image,process_multiple_images
 
 
 def get_crops(session_id):
@@ -149,7 +149,13 @@ def edit_text(session_id):
         # Update the session with the edited image
         session_manager.update_image(session_id, img)
         print(f"[DEBUG] Session image updated")
-        
+        #cv.imwrite("output.png",img)
+        # from PIL import Image
+        # import cv2 as cv
+
+        # final_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        # Image.fromarray(final_rgb).save("output.png")
+        Image.fromarray(img).save("output.png")
         session_manager.set_ocr_results(session_id, final_results)
         print(f"[DEBUG] Session OCR results updated")
         
@@ -161,3 +167,65 @@ def edit_text(session_id):
         print(f"[ERROR] Exception type: {type(e).__name__}")
         print(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
         raise  # Re-raise to let FastAPI handle it
+
+# def edit_text(session_id):
+#     ocr = session_manager.get_ocr_results(session_id)
+#     img = session_manager.get_image_rgb(session_id).copy()
+    
+#     # Prepare batch data
+#     image_data_list = []
+#     temp_files = []
+    
+#     for i in ocr:
+#         x1, y1, x2, y2 = i["crop_coord"]
+#         crop = img[y1:y2, x1:x2]
+#         a1, b1, a2, b2 = i["gb_coord"]
+#         bounded_image = crop[b1:b2, a1:a2]
+        
+#         tmp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+#         tmp_path = tmp_file.name
+#         tmp_file.close()
+#         Image.fromarray(bounded_image).save(tmp_path)
+#         temp_files.append(tmp_path)
+        
+#         image_data_list.append((tmp_path, i["ocr"], i["target_text"]))
+    
+#     try:
+#         # Process all images with single model load
+#         edited_results = process_multiple_images(image_data_list)
+        
+#         final_results = []
+#         for idx, i in enumerate(ocr):
+#             x1, y1, x2, y2 = i["crop_coord"]
+#             crop = img[y1:y2, x1:x2]
+#             a1, b1, a2, b2 = i["gb_coord"]
+            
+#             _, edited_text_pil = edited_results[idx]
+#             edited_text_image = np.array(edited_text_pil)
+            
+#             abs_x1 = x1 + a1
+#             abs_y1 = y1 + b1
+#             abs_x2 = x1 + a2
+#             abs_y2 = y1 + b2
+            
+#             h_target = abs_y2 - abs_y1
+#             w_target = abs_x2 - abs_x1
+#             edited_text_image = cv.resize(edited_text_image, (w_target, h_target))
+            
+#             img[abs_y1:abs_y2, abs_x1:abs_x2] = edited_text_image
+            
+#             temp = {
+#                 **i,
+#                 "edited_text_image": edited_text_image.tolist(),
+#                 "absolute_coordinates": [abs_x1, abs_y1, abs_x2, abs_y2]
+#             }
+#             final_results.append(temp)
+#     finally:
+#         # Clean up all temporary files
+#         for tmp_path in temp_files:
+#             os.unlink(tmp_path)
+    
+#     session_manager.update_image(session_id, img)
+#     session_manager.set_ocr_results(session_id, final_results)
+    
+#     return final_results

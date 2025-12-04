@@ -7,8 +7,54 @@ from util.session_manager import session_manager
 from util.text_edit import get_crops, edit_text
 from fastapi.responses import StreamingResponse
 import io
+import os
+import sys
 
 router = APIRouter(prefix="/sam", tags=["SAM Segmentation"])
+
+# Add TextCtrl path to sys.path
+# Assuming router.py is in text_ctrl/ and main.py is in text_ctrl/TextCtrl/
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # This is text_ctrl/
+TEXTCTRL_PATH = os.path.join(SCRIPT_DIR, 'TextCtrl')  # This is text_ctrl/TextCtrl/
+
+print(f"[DEBUG] SCRIPT_DIR: {SCRIPT_DIR}")
+print(f"[DEBUG] TEXTCTRL_PATH: {TEXTCTRL_PATH}")
+print(f"[DEBUG] TEXTCTRL_PATH exists: {os.path.exists(TEXTCTRL_PATH)}")
+
+if TEXTCTRL_PATH not in sys.path:
+    sys.path.insert(0, TEXTCTRL_PATH)
+
+# Now import model_manager after path is set
+from main import model_manager
+
+# Initialize the model immediately when this module is imported
+print("[ROUTER] Initializing GaMuSA model...")
+try:
+    # Change to TextCtrl directory for relative paths (configs, weights, etc.)
+    original_cwd = os.getcwd()
+    print(f"[DEBUG] Original CWD: {original_cwd}")
+    
+    os.chdir(TEXTCTRL_PATH)
+    print(f"[DEBUG] Changed to: {os.getcwd()}")
+    
+    model_manager.get_pipeline()
+    print("[ROUTER] GaMuSA model loaded successfully!")
+    
+    # Restore original working directory
+    os.chdir(original_cwd)
+    print(f"[DEBUG] Restored CWD: {os.getcwd()}")
+except Exception as e:
+    print(f"[ROUTER ERROR] Failed to load GaMuSA model: {str(e)}")
+    import traceback
+    print(f"[ROUTER ERROR] Traceback: {traceback.format_exc()}")
+    # Restore directory even on error
+    try:
+        os.chdir(original_cwd)
+    except:
+        pass
+    # You can choose to raise the error or continue
+    # raise e
+
 
 @router.post("/create_session")
 async def create_session(file: UploadFile = File(...)):

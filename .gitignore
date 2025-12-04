@@ -21,7 +21,7 @@ semantic_diffusion/
 *.jpg
 misc/
 dataset/
-text_ctrl/yolo_mscoco
+# text_ctrl/yolo_mscoco
 pipeline_colour_correction/dataset
 pipeline_colour_correction/inputs
 pipeline_colour_correction/output
@@ -39,7 +39,8 @@ text_ctrl/TextCtrl/dump
 text_ctrl/TextCtrl/example_result
 text_ctrl/TextCtrl/weights
 
-text_morph/yolo_mscoco
+# text_morph/yolo_mscoco
+text_morph_2/
 mood_lens/dataset
 mood_lens/inputs
 mood_lens/output
