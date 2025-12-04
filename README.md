@@ -2,12 +2,12 @@
 
 
 ## Market Research & Problem Understanding
-[Market Research](./MARKET_RESERACH_AND_UI/team37_Market_Research.pdf)
-[Figma Designs](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_figma.png)
-[Design Rationale](./MARKET_RESERACH_AND_UI/team37_Design_Rationale.pdf)
-[Demo Video](./MARKET_RESERACH_AND_UI/team37_Demo_Video.mp4)
-[Feature Walkthrough Video](./MARKET_RESERACH_AND_UI/team37_feature_walkthrough.mp4)
-[Pure Figma](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_Pure_Final.png)
+- [Market Research](./MARKET_RESERACH_AND_UI/team37_Market_Research.pdf)
+- [Figma Designs](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_figma.png)
+- [Design Rationale](./MARKET_RESERACH_AND_UI/team37_Design_Rationale.pdf)
+- [Demo Video](./MARKET_RESERACH_AND_UI/team37_Demo_Video.mp4)
+- [Feature Walkthrough Video](./MARKET_RESERACH_AND_UI/team37_feature_walkthrough.mp4)
+- [Pure Figma](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_Pure_Final.png)
 
 
 ## Proposed Features
@@ -516,7 +516,11 @@ python embed_inferency.py #for embedding the input image with a watermark
 python detect_inference.py #for detecting if the inout image was photoshopped by our pipeline
 ```
 
-
+### Production Ready Docker
+```bash
+# uses the docker-compose.yml
+docker compose up -d
+```
 
 ## Appendix I - Hardware
 
