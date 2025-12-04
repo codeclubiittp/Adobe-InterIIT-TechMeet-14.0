@@ -8,7 +8,7 @@ import config
 
 INPUT_FILE = 'photos.csv000'
 OUTPUT_CSV = 'dataset_manifest.csv'
-IMAGE_DIR = 'pipeline_colour_correction/dataset/images' 
+IMAGE_DIR = 'mood_lens/dataset/images' 
 MAX_WORKERS = 8
 SAVE_INTERVAL = 250  
 
