@@ -7,7 +7,7 @@ import torch.optim as optim
 from models import Embedder, Detector
 from dataset import ImageOnlyDataset  # new dataset
 import random
-from models_detector import SynthIDDetector
+# from models_detector import SDetector
 
 # settings
 DATA_FOLDER = "data/filmset"
@@ -18,7 +18,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # models
 embedder = Embedder().to(DEVICE)
-detector = SynthIDDetector().to(DEVICE)
+detector = Detector().to(DEVICE)
 
 
 # key vector on GPU

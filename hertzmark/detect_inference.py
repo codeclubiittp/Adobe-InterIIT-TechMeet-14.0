@@ -2,7 +2,7 @@
 import cv2
 import torch
 import numpy as np
-from models_detector import SynthIDDetector
+from models import Detector
 import torchvision.transforms as T
 
 # ImageNet normalization

@@ -6,3 +6,4 @@ opencv_python==4.11.0.86
 Pillow==9.5.0
 torch==2.9.1
 uvicorn
+python-multipart
