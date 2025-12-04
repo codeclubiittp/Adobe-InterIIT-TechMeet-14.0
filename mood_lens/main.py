@@ -2,9 +2,9 @@ import os
 import pandas as pd
 import logging
 import config
-from pipeline_colour_correction.vsearch import VSearchEngine
-from pipeline_colour_correction.lut_generator import NeuralLUTGenerator
-from pipeline_colour_correction.engine_core import colour_correct
+from mood_lens.vsearch import VSearchEngine
+from mood_lens.lut_generator import NeuralLUTGenerator
+from mood_lens.engine_core import colour_correct
 
 def dump_info():
     logging.info("Configuration Settings:")
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     logging.info("Loading Shared VGG19 Model for LUT Generation")
     shared_generator = NeuralLUTGenerator()
     
-    test_image = "pipeline_colour_correction/inputs/1.jpg"
+    test_image = "mood_lens/inputs/1.jpg"
     
     if not os.path.exists(test_image):
         logging.error(f"Input image not found at {test_image}")

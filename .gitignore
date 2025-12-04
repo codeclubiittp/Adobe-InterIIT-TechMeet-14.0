@@ -22,10 +22,10 @@ semantic_diffusion/
 misc/
 dataset/
 # text_ctrl/yolo_mscoco
-pipeline_colour_correction/dataset
-pipeline_colour_correction/inputs
-pipeline_colour_correction/output
-pipeline_colour_correction/ui
+mood_lens/dataset
+mood_lens/inputs
+mood_lens/output
+mood_lens/ui
 pipeline_relighting/image_cache
 pipeline_relighting/normals_cache
 pipeline_relighting/ui

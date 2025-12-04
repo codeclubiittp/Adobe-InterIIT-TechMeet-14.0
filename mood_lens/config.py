@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# DATASET_ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset")
-DATASET_ROOT_DIR = os.getenv("dataset_path")
+DATASET_ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset")
+#DATASET_ROOT_DIR = os.getenv("dataset_path")
 print(DATASET_ROOT_DIR)
 OUTPUT_ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 MISC_ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "misc")
@@ -18,7 +18,7 @@ INDEX_PATH = os.path.join(DATASET_ROOT_DIR, "vector_db.index")
 METADATA_PATH = os.path.join(DATASET_ROOT_DIR, "metadata_map.pkl")
 CSV_PATH = os.path.join(DATASET_ROOT_DIR, "labeled_dataset.csv")
 PROFILE_CHART_PATH = os.path.join(MISC_ROOT_DIR, "profiling_charts")
-CACHE_DIR = os.path.join(MISC_ROOT_DIR, ".pipeline_colour_correction_hf_cache")
+CACHE_DIR = os.path.join(MISC_ROOT_DIR, ".mood_lens_hf_cache")
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -35,7 +35,7 @@ WEIGHT_TV = 12.0
 
 def setup_logging(log_file=None):
     if log_file is None:
-        log_file = os.path.join(MISC_ROOT_DIR, f"pipeline_colour_correction_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')}.log")
+        log_file = os.path.join(MISC_ROOT_DIR, f"mood_lens_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')}.log")
     
     os.makedirs(DATASET_ROOT_DIR, exist_ok=True)
     os.makedirs(OUTPUT_ROOT_DIR, exist_ok=True)

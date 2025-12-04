@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import pipeline_colour_correction.config as config
+import mood_lens.config as config
 
 class TrilinearLUT(nn.Module):
     def __init__(self, dim=33):

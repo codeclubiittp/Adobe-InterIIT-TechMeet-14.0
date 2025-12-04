@@ -10,9 +10,9 @@ from PIL import Image
 from tqdm import tqdm
 from torchvision import transforms
 
-import pipeline_colour_correction.config as config
-from pipeline_colour_correction.dataset import ImageDataset
-from pipeline_colour_correction.lut_model import TrilinearLUT 
+import mood_lens.config as config
+from mood_lens.dataset import ImageDataset
+from mood_lens.lut_model import TrilinearLUT 
 
 def check_image_path(path):
     """Helper to verify image path and debug if missing."""

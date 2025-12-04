@@ -13,10 +13,10 @@ import logging
 import pandas as pd
 import base64
 
-import pipeline_colour_correction.config as config
-from pipeline_colour_correction.vsearch import VSearchEngine
-from pipeline_colour_correction.lut_generator import NeuralLUTGenerator
-from pipeline_colour_correction.engine_core import colour_correct, colour_correct_multivariant
+import mood_lens.config as config
+from mood_lens.vsearch import VSearchEngine
+from mood_lens.lut_generator import NeuralLUTGenerator
+from mood_lens.engine_core import colour_correct, colour_correct_multivariant
 
 models = {}
 gpu_lock = asyncio.Lock()

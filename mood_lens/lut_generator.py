@@ -6,9 +6,9 @@ import torchvision.models as models
 from PIL import Image
 import numpy as np
 import cv2
-import pipeline_colour_correction.config as config
+import mood_lens.config as config
 import logging
-from pipeline_colour_correction.lut_model import TrilinearLUT
+from mood_lens.lut_model import TrilinearLUT
 
 class NeuralLUTGenerator:
     def __init__(self):

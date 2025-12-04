@@ -10,8 +10,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import logging
-import pipeline_colour_correction.config as config
-from pipeline_colour_correction.dataset import ImageDataset
+import mood_lens.config as config
+from mood_lens.dataset import ImageDataset
 
 class VSearchEngine:
     def __init__(
