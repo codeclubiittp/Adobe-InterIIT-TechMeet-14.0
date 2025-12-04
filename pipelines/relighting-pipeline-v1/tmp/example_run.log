@@ -1,0 +1,1 @@
+uv run main2.py --input input.jpg --out relight --az 30 --el 60 --intensity 15 --ambient 0.1 --spot_mode directional --spot_cone 300 --spot_exponent 3

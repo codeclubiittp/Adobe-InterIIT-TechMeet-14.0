@@ -1,0 +1,49 @@
+# Use NVIDIA CUDA base image with Ubuntu 20.04
+FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/root/miniconda3/bin:${PATH}"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    git \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    bash miniconda.sh -b -p /root/miniconda3 && \
+    rm miniconda.sh && \
+    conda init bash
+
+# Set working directory
+WORKDIR /app
+
+# Copy application files
+COPY . .
+
+# Accept Conda Terms of Service and create conda environment
+RUN conda config --set channel_priority flexible && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
+    conda create --name textctrl python=3.8 -y && \
+    echo "source activate textctrl" > ~/.bashrc && \
+    /bin/bash -c "source activate textctrl && \
+    pip install --upgrade torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu117 && \
+    pip install -r requirements.txt"
+
+# Expose port 8000
+EXPOSE 8000
+
+# Run the server with conda environment activated
+# NOTE: To run this container with GPU support, use:
+# docker run -d --gpus all -p 8000:8000 --name textrewrite textrewrite-api
+CMD ["/bin/bash", "-c", "source activate textctrl && python api.py"]

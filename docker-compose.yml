@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  lama:
+    image: lama
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+    networks:
+      - appnet
+
+  relight:
+    image: relight
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - appnet
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+
+
+  colour-correction:
+    image: colour-correction
+    environment:
+      - dataset_path=/app/dataset
+    volumes:
+      - ./pipeline_colour_correction/dataset:/app/dataset
+      - ./pipeline_colour_correction/output:/app/output
+      - ./pipeline_colour_correction/misc:/app/misc
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

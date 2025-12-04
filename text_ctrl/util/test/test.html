@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAM Bounding Box Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            padding: 30px;
+            border-right: 2px solid #e9ecef;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-btn input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            left: 0;
+            top: 0;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .control-btn.clear {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .control-btn.clear:hover:not(:disabled) {
+            background: #ffb300;
+        }
+
+        .control-btn.remove {
+            background: #ff5252;
+            color: white;
+        }
+
+        .control-btn.remove:hover:not(:disabled) {
+            background: #ff1744;
+        }
+
+        .control-btn.export {
+            background: #4caf50;
+            color: white;
+        }
+
+        .control-btn.export:hover:not(:disabled) {
+            background: #43a047;
+        }
+
+        .control-btn.ocr {
+            background: #2196F3;
+            color: white;
+        }
+
+        .control-btn.ocr:hover:not(:disabled) {
+            background: #1976D2;
+        }
+
+        .info-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .info-section h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .canvas-container {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            max-width: 600px;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            padding: 8px 0;
+            color: #666;
+        }
+
+        .instructions li:before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 100px 40px;
+            color: #999;
+        }
+
+        .placeholder svg {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-badge.ready {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-badge.waiting {
+            background: #ff9800;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .ocr-overlay {
+            position: absolute;
+            background: rgba(33, 150, 243, 0.3);
+            border: 2px solid #2196F3;
+            pointer-events: none;
+        }
+
+        .ocr-input-container {
+            position: absolute;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .ocr-input-container input {
+            width: 200px;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .ocr-input-container .ocr-text {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .ocr-submit-btn {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .ocr-submit-btn:hover {
+            background: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SAM Bounding Box Selector</h1>
+            <p>Interactive segmentation with Segment Anything Model</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="upload-section">
+                    <button class="upload-btn">
+                        📁 Upload Image
+                        <input type="file" id="imageUpload" accept="image/*">
+                    </button>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn clear" id="clearBtn" disabled>
+                        🔄 Clear All Points
+                    </button>
+                    <button class="control-btn remove" id="removeBtn" disabled>
+                        ↩️ Remove Last Point
+                    </button>
+                    <button class="control-btn export" id="exportBtn" disabled>
+                        💾 Export Bounding Boxes
+                    </button>
+                    <button class="control-btn ocr" id="ocrBtn" disabled>
+                        📝 Get OCR Results
+                    </button>
+                </div>
+
+                <div id="ocrInputs" style="margin-top: 20px;"></div>
+
+                <div class="info-section">
+                    <h3>📊 Session Info</h3>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">
+                            <span class="status-badge waiting" id="statusBadge">No Image</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Session ID:</span>
+                        <span class="info-value" id="sessionId">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Points:</span>
+                        <span class="info-value" id="pointCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Bounding Boxes:</span>
+                        <span class="info-value" id="bboxCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Merged Boxes:</span>
+                        <span class="info-value" id="mergedCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <div id="canvasArea">
+                    <div class="placeholder">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                        <h2>Upload an image to get started</h2>
+                        <p>Click the upload button or drag & drop an image</p>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h3>📝 How to Use</h3>
+                    <ul>
+                        <li><strong>Left Click:</strong> Add a point and generate bounding box</li>
+                        <li><strong>Remove Last:</strong> Undo the last point added</li>
+                        <li><strong>Clear All:</strong> Remove all points and start over</li>
+                        <li><strong>Export:</strong> Download bounding box coordinates as JSON</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/sam';
+        
+        let sessionId = null;
+        let currentImage = null;
+        let canvas = null;
+        let ctx = null;
+        let points = [];
+        let bboxes = [];
+        let mergedBboxes = [];
+        let ocrResults = [];
+
+        // DOM elements
+        const imageUpload = document.getElementById('imageUpload');
+        const clearBtn = document.getElementById('clearBtn');
+        const removeBtn = document.getElementById('removeBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const canvasArea = document.getElementById('canvasArea');
+        const statusBadge = document.getElementById('statusBadge');
+        const sessionIdEl = document.getElementById('sessionId');
+        const pointCountEl = document.getElementById('pointCount');
+        const bboxCountEl = document.getElementById('bboxCount');
+        const mergedCountEl = document.getElementById('mergedCount');
+        const ocrBtn = document.getElementById('ocrBtn');
+        const ocrInputsEl = document.getElementById('ocrInputs');
+
+        // Upload image
+        imageUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            statusBadge.textContent = 'Uploading...';
+            statusBadge.className = 'status-badge waiting loading';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_URL}/create_session`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                sessionId = data.session_id;
+
+                // Load image to canvas
+                const img = new Image();
+                img.onload = () => {
+                    createCanvas(img, data.width, data.height);
+                    updateUI();
+                    statusBadge.textContent = 'Ready';
+                    statusBadge.className = 'status-badge ready';
+                    sessionIdEl.textContent = sessionId.substring(0, 8) + '...';
+                    enableControls();
+                };
+                img.src = URL.createObjectURL(file);
+                currentImage = img;
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Failed to upload image');
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge waiting';
+            }
+        });
+
+        // Create canvas
+        function createCanvas(img, width, height) {
+            canvasArea.innerHTML = '';
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'canvas-wrapper';
+            
+            canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            ctx = canvas.getContext('2d');
+            
+            ctx.drawImage(img, 0, 0);
+            
+            wrapper.appendChild(canvas);
+            canvasArea.appendChild(wrapper);
+
+            // Add click listener
+            canvas.addEventListener('click', handleCanvasClick);
+        }
+
+        // Handle canvas click (add point)
+        async function handleCanvasClick(e) {
+            if (!sessionId) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.round((e.clientX - rect.left) * scaleX);
+            const y = Math.round((e.clientY - rect.top) * scaleY);
+
+            statusBadge.textContent = 'Processing...';
+            statusBadge.className = 'status-badge waiting loading';
+
+            try {
+                const response = await fetch(`${API_URL}/add_point`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        point: { x, y }
+                    })
+                });
+
+                const state = await response.json();
+                updateState(state);
+                redraw();
+                statusBadge.textContent = 'Ready';
+                statusBadge.className = 'status-badge ready';
+
+            } catch (error) {
+                console.error('Add point error:', error);
+                alert('Failed to add point');
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge waiting';
+            }
+        }
+
+        // Clear all points
+        clearBtn.addEventListener('click', async () => {
+            if (!sessionId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/clear_session?session_id=${sessionId}`, {
+                    method: 'POST'
+                });
+
+                const state = await response.json();
+                updateState(state);
+                redraw();
+
+            } catch (error) {
+                console.error('Clear error:', error);
+                alert('Failed to clear points');
+            }
+        });
+
+        // Remove last point
+        removeBtn.addEventListener('click', async () => {
+            if (!sessionId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/remove_last_point?session_id=${sessionId}`, {
+                    method: 'POST'
+                });
+
+                const state = await response.json();
+                updateState(state);
+                redraw();
+
+            } catch (error) {
+                console.error('Remove error:', error);
+                alert('Failed to remove point');
+            }
+        });
+
+        // Export bounding boxes
+        exportBtn.addEventListener('click', () => {
+            const data = {
+                session_id: sessionId,
+                points: points,
+                bboxes: bboxes,
+                merged_bboxes: mergedBboxes,
+                timestamp: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bboxes_${sessionId.substring(0, 8)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Get OCR Results
+        ocrBtn.addEventListener('click', async () => {
+            if (!sessionId) return;
+
+            statusBadge.textContent = 'OCR Processing...';
+            statusBadge.className = 'status-badge waiting loading';
+
+            try {
+                const response = await fetch(`${API_URL}/get_ocr?session_id=${sessionId}`);
+                const data = await response.json();
+                ocrResults = data.ocr_results;
+                displayOCRInputs();
+                redraw();
+                statusBadge.textContent = 'Ready';
+                statusBadge.className = 'status-badge ready';
+            } catch (error) {
+                console.error('OCR error:', error);
+                alert('Failed to get OCR results');
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge waiting';
+            }
+        });
+
+        // Display OCR input fields
+        function displayOCRInputs() {
+            ocrInputsEl.innerHTML = '';
+            if (ocrResults.length === 0) return;
+
+            const container = document.createElement('div');
+            container.style.cssText = 'background: white; padding: 15px; border-radius: 8px; border: 2px solid #e9ecef; max-height: 400px; overflow-y: auto;';
+            
+            const title = document.createElement('h3');
+            title.textContent = '📝 OCR Results';
+            title.style.cssText = 'font-size: 1em; margin-bottom: 10px; color: #2196F3;';
+            container.appendChild(title);
+
+            ocrResults.forEach((result, index) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;';
+                
+                const label = document.createElement('div');
+                label.textContent = `Text ${index + 1}: ${result.ocr}`;
+                label.style.cssText = 'font-size: 12px; color: #666; margin-bottom: 5px;';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'Enter target text...';
+                input.value = result.target_text || '';
+                input.style.cssText = 'width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;';
+                input.dataset.index = index;
+                
+                item.appendChild(label);
+                item.appendChild(input);
+                container.appendChild(item);
+            });
+
+            const submitBtn = document.createElement('button');
+            submitBtn.textContent = '✓ Update Target Text';
+            submitBtn.className = 'ocr-submit-btn';
+            submitBtn.onclick = updateOCRResults;
+            container.appendChild(submitBtn);
+
+            ocrInputsEl.appendChild(container);
+        }
+        // Update OCR results with target text
+        async function updateOCRResults() {
+            const inputs = ocrInputsEl.querySelectorAll('input[data-index]');
+            inputs.forEach(input => {
+                const index = parseInt(input.dataset.index);
+                ocrResults[index].target_text = input.value;
+            });
+
+            statusBadge.textContent = 'Updating...';
+            statusBadge.className = 'status-badge waiting loading';
+
+            try {
+                const response = await fetch(`${API_URL}/update_ocr`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        ocr_results: ocrResults
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Reload the edited image from the session
+                await reloadEditedImage();
+                
+                alert('Text edited and applied to image successfully!');
+                statusBadge.textContent = 'Ready';
+                statusBadge.className = 'status-badge ready';
+            } catch (error) {
+                console.error('Update OCR error:', error);
+                alert('Failed to update OCR results');
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge waiting';
+            }
+        }
+
+        // Add this new function to reload the edited image
+        async function reloadEditedImage() {
+            try {
+                // Fetch the updated image from backend
+                const response = await fetch(`${API_URL}/get_edited_image?session_id=${sessionId}`);
+                const blob = await response.blob();
+                
+                // Load the new image
+                const img = new Image();
+                img.onload = () => {
+                    currentImage = img;
+                    redraw();
+                };
+                img.src = URL.createObjectURL(blob);
+            } catch (error) {
+                console.error('Failed to reload edited image:', error);
+            }
+        }
+
+        // Update state from API response
+        function updateState(state) {
+            points = state.points;
+            bboxes = state.bboxes;
+            mergedBboxes = state.merged_bboxes;
+            updateUI();
+        }
+
+        // Update UI counters
+        function updateUI() {
+            pointCountEl.textContent = points.length;
+            bboxCountEl.textContent = bboxes.length;
+            mergedCountEl.textContent = mergedBboxes.length;
+        }
+
+        // Redraw canvas
+        function redraw() {
+            if (!canvas || !currentImage) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0);
+
+            // Draw merged bounding boxes
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            mergedBboxes.forEach(bbox => {
+                ctx.strokeRect(bbox.x1, bbox.y1, bbox.x2 - bbox.x1, bbox.y2 - bbox.y1);
+            });
+
+            // Draw OCR highlights
+            if (ocrResults.length > 0) {
+                ctx.strokeStyle = '#2196F3';
+                ctx.fillStyle = 'rgba(33, 150, 243, 0.2)';
+                ctx.lineWidth = 2;
+                ocrResults.forEach((result, idx) => {
+                    const [x1, y1, x2, y2] = result.crop_coord;
+                    const [[gx1, gy1], [gx2, gy2], [gx3, gy3], [gx4, gy4]] = result.gb_coord;
+                    
+                    const ax1 = x1 + gx1;
+                    const ay1 = y1 + gy1;
+                    const ax2 = x1 + gx2;
+                    const ay2 = y1 + gy2;
+                    
+                    ctx.fillRect(ax1, ay1, ax2 - ax1, ay2 - ay1);
+                    ctx.strokeRect(ax1, ay1, ax2 - ax1, ay2 - ay1);
+                    
+                    ctx.fillStyle = '#2196F3';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillText(result.ocr, ax1, ay1 - 5);
+                    ctx.fillStyle = 'rgba(33, 150, 243, 0.2)';
+                });
+            }
+
+            // Draw points
+            ctx.fillStyle = 'lime';
+            points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Enable controls
+        function enableControls() {
+            clearBtn.disabled = false;
+            removeBtn.disabled = false;
+            exportBtn.disabled = false;
+            ocrBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
