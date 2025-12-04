@@ -2,7 +2,13 @@
 
 
 ## Market Research & Problem Understanding
-[Market Research](https://drive.google.com/file/d/1ehQzuSYsoPr6L-OFhXNoXRC5tIQXfaf8/view?usp=sharing)
+[Market Research](./MARKET_RESERACH_AND_UI/team37_Market_Research.pdf)
+[Figma Designs](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_figma.png)
+[Design Rationale](./MARKET_RESERACH_AND_UI/team37_Design_Rationale.pdf)
+[Demo Video](./MARKET_RESERACH_AND_UI/team37_Demo_Video.mp4)
+[Feature Walkthrough Video](./MARKET_RESERACH_AND_UI/team37_feature_walkthrough.mp4)
+[Pure Figma](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_Pure_Final.png)
+
 
 ## Proposed Features
 - **Text Morph**
@@ -83,7 +89,7 @@ This proposed workflow addresses this challenge by combining state-of-the-art se
 **Pipeline/Workflow**
 
 - **Segmentation for Region Masking using SAM 2**
-  High-fidelity binary masks are generated from sparse point inputs, enabling precise localization of the target regions for subsequent processing.
+  High-fidelity bounding boxes are generated from sparse point inputs, enabling precise localization of the target regions for subsequent processing.
 - **LaMa Inpainting**
   The LaMa-Inpainting model, which leverages Fast Fourier Convolutions (FFCs), is employed to inpaint the masked regions while preserving global structural coherence.
 - **Depth Estimation**
@@ -114,7 +120,7 @@ This proposed workflow addresses this challenge by combining state-of-the-art se
 
 
 ### Use of Lama-Inpainting
-To overcome the limitations inherent in the standard implementation, we extensively optimized the [Lama-Inpainting](https://github.com/advimman/lama) repository for integration into our AI workflow. This involved substantial architectural and code-level modifications, culminating in the creation of a dedicated GitHub repository to maintain and document our enhanced version.
+To overcome the limitations inherent in the standard implementation, we extensively optimized the [Lama-Inpainting](https://github.com/advimman/lama) repository for integration into our AI workflow. This involved substantial code-level modifications, culminating in the creation of a dedicated GitHub repository to maintain and document our enhanced version.
 
 ---
 
@@ -341,7 +347,7 @@ sudo apt-get install -y nvidia-container-toolkit
 ```bash=
 # clone the repo
 # --------------
-git clone https://github.com/photosaverneedbackup-star/team_37_adobe
+git clone https://github.com/photosaverneedbackup-star/team37-adobe-14
 cd team_37_adobe
 git submodule init
 ```
@@ -368,9 +374,14 @@ conda activate text_morph
 pip install --upgrade torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu117
 # other dependencies
 pip install -r requirements.txt
+pip install huggingface_hub
+
+# download the dataset
+python weights_download.py --path ./TextCtrl/weights
 ```
-- Download the model weights for `TextCtrl` & `yolo-mscoco` from [Mega]()
-- Move the `TextCtrl` weights to `text_morph/TextCtrl/weights` and `yolo-mscoco` weights to `text_morph/yolo_mscoco/weights`
+(incase the above fails)
+- Download the model weights for `TextCtrl` from [Mega](https://mega.nz/file/LRUQxDJL#KHzmBYkCj82wPfbaBZK-t2Ma9ndUlvqqMqFdSFpP8L4)
+- Move the `TextCtrl` weights to `text_morph/TextCtrl/weights`
 ```bash=
 # start the server
 # ----------------
@@ -396,9 +407,6 @@ sudo docker run -p 7000:7000 text_morph
 ### Lightshift Remove
 - Clone the repo
 ```bash=
-# clone the repo
-# --------------
-git clone https://github.com/photosaverneedbackup-star/lightshift_remove
 cd lightshift_remove
 ```
 #### Path 1 : Via the Conda Environment
@@ -420,29 +428,27 @@ docker build -t lightshift_remove .
 docker run -it --gpus all lightshift_remove
 ```
 
-#### Training the Lama Inpainting Model
+#### Training LaMa-Fourier
 ##### Download and setup the repo
 ```bash=
-# clone the repo
-# --------------    
-git clone https://github.com/photosaverneedbackup-star/lama-inpainting
-cd lama-inpainting
-
 # create the conda environment
 # ----------------------------
-conda create -f environment.yaml
+conda env create -f environment.yaml
 conda activate lama
+export TORCH_HOME=$(pwd) && export PYTHONPATH=$(pwd)
 ```
 
 ##### Training
-- Download the dataset from [Pipe Dataset](https://huggingface.co/datasets/paint-by-inpaint/PIPE)
-- Change the path of your dataset in `configs/training/orin.yaml` and the variable `data_root_dir`
-- To configure the GPU's use the `configs/training/trainer/single_gpu.yml`
-    - To use multiple GPU's use the value `-1`
+- Download the dataset from [Pipe Dataset](https://huggingface.co/datasets/paint-by-inpaint/PIPE) and generate your validations masks from the images (or)
 ```bash=
-python bin/train.py
+python pipe_download.py
 ```
+- Change the path of your dataset in `configs/training/orin.yaml` and the variable `data_root_dir` to the output directory of `pipe_download.py`
 
+- Train the model
+``` bash=
+python bin/train.py -cn lama-fourier location=orin
+```
 ##### Inference
 - Place your test images in the folder `test_images/`
 ```bash=
@@ -463,7 +469,7 @@ pip install -r requirements.txt
 ```
 
 #### Preparing the Dataset
-- Download the [Dataset](https://github.com/unsplash/datasets)
+- Download the [Dataset](https://github.com/unsplash/datasets) [unsplash]
 - Move the `photos.csv000` to this directory
 ```bash=
 python mood_lens/download_dataset.py
@@ -476,7 +482,8 @@ python mood_lens/download_dataset.py
 python caption_dataset.py
 # main.py will automatically build the index for the first time & reuse it
 # for subsequent runs!
-python main.py
+cd .. #exit out of the pipeline directory
+uvicorn mood_lens.server:app
 ```
 
 #### Path 2 : Docker Environment
@@ -487,23 +494,26 @@ sudo docker run -it -p 8000:8000 -e dataset_path="/app/dataset" -v $(pwd)/datase
 
 ### HertzMark
 ```bash=
-# clone the repo
-# --------------
-git clone https://github.com/photosaverneedbackup-star/hertz_mark
 cd hertz_mark
 
 # create the conda environment
 # ----------------------------
-conda create -f environment.yaml
+conda env create -f environment.yaml
 conda activate hertz_mark
 ```
 
-- Download the dataset from [HertzMark](https://www.kaggle.com/datasets/xuhangc/filmset)
+- Download the dataset from [HertzMark](https://www.kaggle.com/datasets/xuhangc/filmset) [filmset from Kaggle]
 - Move the dataset to `data/`
 - To modify the dataset path, modify the `DATA_FOLDER` variable
 ```bash=
 # for training
-train.py
+python train.py
+```
+
+- To infer, run these commands:
+```python=
+python embed_inferency.py #for embedding the input image with a watermark
+python detect_inference.py #for detecting if the inout image was photoshopped by our pipeline
 ```
 
 
@@ -562,17 +572,17 @@ train.py
 
 
 
-## Appendix III - Model Weights & Datasets Link
-
-### Text Morph
-Follow the instructions in the repository [Text-Ctrl](https://github.com/weichaozeng/TextCtrl) to prepare and dataset and train the model.
-
-### Lightshift Remove
-
-## Appendix IV - Abbreviations
+## Appendix III - Abbreviations
 
 - GaMuSa - Glyph Adaptive Mutual Self Attention
 - CLIP - Contrastive Language-Image Pretraining
 - SAM - Segment Anything
 - LaMa - Large Mask
 - YOLO - You Only Look Once
+
+## NOTE
+- All datasets linked are open-sourced and attached licenses.
+- Terms have been attached in the repository for required Datasets.
+- HertzMark has been implemented to ensure provenance.
+- **Repository**:
+https://github.com/photosaverneedbackup-star/team37-adobe-14
