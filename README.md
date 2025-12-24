@@ -1,7 +1,9 @@
 # Team_37_Adobe_Technical_Report
 
+## Contributors
+[Anirudh Arrepu](github.com/AnirudhArrepu)
 
-## Market Research & Problem Understanding
+## Market Research, Problem Understanding, Solution Description
 - [Market Research](./MARKET_RESERACH_AND_UI/team37_Market_Research.pdf)
 - [Figma Designs](./MARKET_RESERACH_AND_UI/team37_Adobe_UI_figma.png)
 - [Design Rationale](./MARKET_RESERACH_AND_UI/team37_Design_Rationale.pdf)
