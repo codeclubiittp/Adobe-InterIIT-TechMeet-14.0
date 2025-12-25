@@ -5,6 +5,7 @@
 [Niranjan M](https://github.com/all-coder)
 [Suriyaa MM](https://github.com/SuriyaaMM)
 [Rishi Ravi](https://github.com/Rishi-Ravi)
+[Amit Jomy](https://github.com/amitjomy007)
 
 ## Market Research, Problem Understanding, Solution Description
 - [Market Research](./MARKET_RESERACH_AND_UI/team37_Market_Research.pdf)
