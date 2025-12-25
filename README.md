@@ -3,6 +3,7 @@
 ## Contributors
 [Anirudh Arrepu](https://github.com/AnirudhArrepu)
 [Niranjan M](https://github.com/all-coder)
+[Rishi Ravi](https://github.com/Rishi-Ravi)
 
 ## Market Research, Problem Understanding, Solution Description
 - [Market Research](./MARKET_RESERACH_AND_UI/team37_Market_Research.pdf)
